@@ -15,11 +15,16 @@ public abstract class Element {
 	private final String name;
 	protected Railway railway;
 
+	private int id;
+
+
+
 	protected Element(String name) {
 		if(name == null)
 			throw new NullPointerException();
 		
 		this.name = name;
+		this.id = id;
 	}
 
 	public void setRailway(Railway r) {
@@ -28,7 +33,13 @@ public abstract class Element {
 		
 		this.railway = r;
 	}
+	public int getId() {
+		return id;
+	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
 	@Override
 	public String toString() {
 		return this.name;
