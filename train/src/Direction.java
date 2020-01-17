@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Représentation de la direction que peut prendre un train : de gauche à droite
  * ou de droite à gauche.

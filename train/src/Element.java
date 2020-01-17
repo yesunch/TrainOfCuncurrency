@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Cette classe abstraite est la représentation générique d'un élément de base d'un
  * circuit, elle factorise les fonctionnalitÃ©s communes des deux sous-classes :

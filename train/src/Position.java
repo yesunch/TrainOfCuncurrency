@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Représentation de la position d'un train dans le circuit. Une position
  * est caractérisée par deux valeurs :

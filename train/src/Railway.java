@@ -1,6 +1,3 @@
-package train;
-
-
 /**
  * Représentation d'un circuit constitué d'éléments de voie ferrée : gare ou
  * section de voie

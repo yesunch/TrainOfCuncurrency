@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Représentation d'un train. Un train est caractérisé par deux valeurs :
  * <ol>

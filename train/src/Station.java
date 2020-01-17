@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Représentation d'une gare. C'est une sous-classe de la classe {@link Element}.
  * Une gare est caractérisée par un nom et un nombre de quais (donc de trains

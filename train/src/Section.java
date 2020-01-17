@@ -1,5 +1,3 @@
-package train;
-
 /**
  * Représentation d'une section de voie ferrée. C'est une sous-classe de la
  * classe {@link Element}.
