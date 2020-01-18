@@ -43,6 +43,10 @@ public class Position implements Cloneable {
 		return pos;
 	}
 
+	public Direction getDirection() {
+		return direction;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder(this.pos.toString());

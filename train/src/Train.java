@@ -23,23 +23,26 @@ public class Train implements Runnable{
 	private final String name;
 	private Position pos;
 
+	private Railway r;
 	private Station originalStation;
 	private Station destination;
 	private List<Element> route;
 
+	public void setRoute(List<Element> route) {
+		this.route = route;
+	}
 
-	public Train(String name, Position p, Station originalStation, Station destination) throws BadPositionForTrainException {
-		if (name == null || p == null)
+	public Train(String name,  Station originalStation, Station destination, Railway r) throws BadPositionForTrainException, InterruptedException {
+		if (name == null )
 			throw new NullPointerException();
 
-		// A train should be first be in a station
-		if (!(p.getPos() instanceof Station))
-			throw new BadPositionForTrainException(name);
-
 		this.name = name;
-		this.pos = p.clone();
+		this.pos = new Position(originalStation, destination.getId()>originalStation.getId()?Direction.LR:Direction.RL);
+		if (this.pos.getPos() instanceof Station)
+			((Station) this.pos.getPos()).enterTrain(this);
 		this.originalStation = originalStation;
 		this.destination = destination;
+		this.r = r;
 	}
 
 
@@ -48,42 +51,73 @@ public class Train implements Runnable{
 		StringBuilder result = new StringBuilder("Train[");
 		result.append(this.name);
 		result.append("]");
-		result.append(" is on ");
-		result.append(this.pos);
+//		result.append(" is on ");
+//		result.append(this.pos);
 		return result.toString();
 	}
 
+	/**
+	 * Prints a statement that the train starts to move from original station to the destination
+	 */
 	public void depart() {
-		System.out.println("Train has departed from "+this.originalStation.toString()+" with destination of "+this.destination);
+		System.out.println(this.toString()+" has departed from "+this.originalStation.toString()+" with destination of "+this.destination);
 	}
 
+	/**
+	 * Prints a statement that The train stops at current position.
+	 */
 	public void stop() {
-		System.out.println("Train has stopped at" + this.pos);
+		System.out.println(this.toString()+" has stopped at " + this.pos.getPos());
 	}
 
+	/**
+	 * Requires a route from original station to its destination using Railway
+	 */
 	public void getRoute() {
-		this.route = Railway.calculateRoute(Station originalStation, Station destination);
+		List<Element> routeCalculated = this.r.calculateRoute(this.originalStation, this.destination);
+		this.route = routeCalculated.subList(1,route.size());
 
 	}
 
+	/**
+	 *
+	 * @throws InterruptedException
+	 */
 	public void gotoNextStation() throws InterruptedException {
 		if (this.pos.getPos() != this.destination) {
 			Position oldPos = this.pos;
-			//if it's leaving from a station, call the outTrain of this station
+
+			//if it's leaving from a station, call the outTrain method of this station
 			if (oldPos.getPos() instanceof Station)
 				((Station) oldPos.getPos()).outTrain(this);
+			//if it's leaving from a section, make this section available to others
+			if (oldPos.getPos() instanceof Section)
+				((Section)oldPos.getPos()).setInUse(false);
+
 			Element nextElem =this.route.remove(0);
+			calculNextPos(nextElem);
+			System.out.println(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + this.pos.getPos());
+
 			//if its nextElem is a station, try to enter it
 			if (nextElem instanceof Station)
 				((Station) nextElem).enterTrain(this);
-			this.pos = calculNextPos(nextElem);
-			System.out.println("Train is moving from " + oldPos + " to " + this.pos);
+			//if its nextElem is a section, try to enter it and make it not available to others
+			if (nextElem instanceof Section) {
+				((Section) nextElem).enter(this);
+				((Section) nextElem).setInUse(true);
+			}
+			//if it arrives at the destination, it will stop
 			if (this.pos.getPos() == this.destination)
 				this.stop();
 		}
 	}
 
-	private Position calculNextPos(Element nextElem) {
+	/**
+	 * Method used to update the current position of train using the next Element.
+	 * If the id of nextElem is greater than the current position id,
+	 * @param nextElem
+	 */
+	private void calculNextPos(Element nextElem) {
 		Direction direction;
 		//if the nextElem id is greater, than go right
 		if (nextElem.getId() > this.pos.getPos().getId())
@@ -91,19 +125,27 @@ public class Train implements Runnable{
 		else
 			direction = Direction.RL;
 		this.pos = new Position(nextElem,direction);
-
 	}
 	@Override
 	public void run() {
-		this.getRoute();
-		this.depart();
-		while (this.pos.getPos() != this.destination) {
-			try {
-				this.gotoNextStation();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		while (true) {
+			this.getRoute();
+			System.out.println(this.toString() + " has route " + this.route);
+			this.depart();
+			while (this.pos.getPos() != this.destination) {
+				try {
+					this.gotoNextStation();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 
+			}
+			//the train has arrived its destination, now it turns around and continue running
+			System.out.println(this.toString()+" has turned around");
+			Station temp = this.originalStation;
+			this.originalStation = this.destination;
+			this.destination = temp;
 		}
+
 	}
 }

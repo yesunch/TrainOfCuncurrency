@@ -46,10 +46,12 @@ public class Railway {
 	 * @param destination
 	 * @return
 	 */
-	public synchronized List<Element> calculateRoute(Station originalStation, Station destination){
+	public  synchronized List<Element> calculateRoute(Station originalStation, Station destination){
 		List<Element> elementsList = new ArrayList<>(Arrays.asList(this.elements));
 		List<Element> finalRoute = new ArrayList<>();
 		for(int i = elementsList.indexOf(originalStation); i<= elementsList.indexOf(destination); i++)
+			finalRoute.add(elementsList.get(i));
+		for(int i = elementsList.indexOf(originalStation); i>= elementsList.indexOf(destination); i--)
 			finalRoute.add(elementsList.get(i));
 		return finalRoute;
 	}

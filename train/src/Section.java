@@ -20,19 +20,18 @@ public class Section extends Element {
 		this.trainInSection = trainInSection;
 	}
 
-	public synchronized boolean isInUse() throws InterruptedException {
-		return inUse;
-	}
 
-	public synchronized void enter() throws InterruptedException {
+	public synchronized void enter(Train train) throws InterruptedException {
 		while (this.inUse){
+			System.out.println(train.toString()+" is waiting to use section "+this.toString());
 			wait();
 		}
+		System.out.println(train.toString()+" has entered "+this.toString());
 		this.inUse = true;
 	}
 
-	public synchronized boolean usedByTrain(Train train){
-		return trainInSection.equals(train);
+	public synchronized void setInUse(boolean inUse){
+		this.inUse = inUse;
 	}
 
 	public Section(String name) {
