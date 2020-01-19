@@ -25,7 +25,7 @@ public class Station extends Element {
 	}
 
 	public synchronized void enterTrain(Train train) throws InterruptedException {
-		while (this.nbTrains >= this.size) {
+		while (this.checkStationCapacity()) {
 			LOGGER.info("This station is full, train "+train.toString()+" is waiting to enter");
 			this.wait();
 		}
@@ -37,7 +37,7 @@ public class Station extends Element {
 	}
 
 	public synchronized void outTrain(Train train) throws InterruptedException {
-		while (this.nbTrains <= 0) {
+		while (this.emptyStation()) {
 			this.wait();
 		}
 		this.nbTrains--;
