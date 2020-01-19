@@ -1,6 +1,7 @@
 import javafx.geometry.Pos;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Représentation d'un train. Un train est caractérisé par deux valeurs :
@@ -28,6 +29,8 @@ public class Train implements Runnable{
 	private Station destination;
 	private List<Element> route;
 
+	private final static Logger LOGGER = Logger.getLogger(Train.class.getName());
+
 	public void setRoute(List<Element> route) {
 		this.route = route;
 	}
@@ -51,8 +54,6 @@ public class Train implements Runnable{
 		StringBuilder result = new StringBuilder("Train[");
 		result.append(this.name);
 		result.append("]");
-//		result.append(" is on ");
-//		result.append(this.pos);
 		return result.toString();
 	}
 
@@ -60,14 +61,14 @@ public class Train implements Runnable{
 	 * Prints a statement that the train starts to move from original station to the destination
 	 */
 	public void depart() {
-		System.out.println(this.toString()+" has departed from "+this.originalStation.toString()+" with destination of "+this.destination);
+		LOGGER.info(this.toString()+" has departed from "+this.originalStation.toString()+" with destination of "+this.destination);
 	}
 
 	/**
 	 * Prints a statement that The train stops at current position.
 	 */
 	public void stop() {
-		System.out.println(this.toString()+" has stopped at " + this.pos.getPos());
+		LOGGER.info(this.toString()+" has stopped at " + this.pos.getPos());
 	}
 
 	/**
@@ -96,7 +97,7 @@ public class Train implements Runnable{
 
 			Element nextElem =this.route.remove(0);
 			calculNextPos(nextElem);
-			System.out.println(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + this.pos.getPos());
+			LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + this.pos.getPos());
 
 			//if its nextElem is a station, try to enter it
 			if (nextElem instanceof Station)
@@ -130,7 +131,7 @@ public class Train implements Runnable{
 	public void run() {
 		while (true) {
 			this.getRoute();
-			System.out.println(this.toString() + " has route " + this.route);
+			LOGGER.info(this.toString() + " has route " + this.route);
 			this.depart();
 			while (this.pos.getPos() != this.destination) {
 				try {
@@ -141,7 +142,7 @@ public class Train implements Runnable{
 
 			}
 			//the train has arrived its destination, now it turns around and continue running
-			System.out.println(this.toString()+" has turned around");
+			LOGGER.info(this.toString()+" has turned around");
 			Station temp = this.originalStation;
 			this.originalStation = this.destination;
 			this.destination = temp;

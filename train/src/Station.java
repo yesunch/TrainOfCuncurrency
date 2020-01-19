@@ -1,5 +1,6 @@
 import javax.sound.midi.Soundbank;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Représentation d'une gare. C'est une sous-classe de la classe {@link Element}.
@@ -10,8 +11,11 @@ import java.util.Map;
  * @author Philippe Tanguy <philippe.tanguy@imt-atlantique.fr>
  */
 public class Station extends Element {
+
 	private final int size;
 	int nbTrains, nbSections;
+
+	private final static Logger LOGGER = Logger.getLogger(Station.class.getName());
 
 	public Station(String name, int size) {
 		super(name);
@@ -22,11 +26,11 @@ public class Station extends Element {
 
 	public synchronized void enterTrain(Train train) throws InterruptedException {
 		while (this.nbTrains >= this.size) {
-			System.out.println("This station is full, train "+train.toString()+" is waiting to enter");
+			LOGGER.info("This station is full, train "+train.toString()+" is waiting to enter");
 			this.wait();
 		}
 		this.nbTrains++;
-		System.out.println("Train "+train.toString()+" has entered station "+
+		LOGGER.info("Train "+train.toString()+" has entered station "+
 				this.toString()+", now this station has "+this.nbTrains+" trains");
 		this.notifyAll();
 
@@ -37,7 +41,7 @@ public class Station extends Element {
 			this.wait();
 		}
 		this.nbTrains--;
-		System.out.println("Train "+train.toString()+" has left station "+
+		LOGGER.info("Train "+train.toString()+" has left station "+
 				this.toString()+", now this station has "+this.nbTrains+" trains");
 		this.notifyAll();
 	}
