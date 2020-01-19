@@ -1,5 +1,6 @@
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -104,10 +105,32 @@ public class Train implements Runnable{
 			//if its nextElem is a station, try to enter it
 			if (nextElem instanceof Station)
 				((Station) nextElem).enterTrain(this);
+
+
+
 			//if its nextElem is a section, try to enter it and make it not available to others
 			if (nextElem instanceof Section) {
-				((Section) nextElem).enter(this);
-				((Section) nextElem).setInUse(true);
+				Element afterNext = this.route.remove(0);
+				List<Section> sectionsList = new ArrayList<>();
+				if (!(afterNext instanceof Section)) //station
+					this.route.add(0,afterNext);
+				while (afterNext instanceof Section) {
+					nextElem = ((Section) nextElem).addSection((Section)afterNext);
+					sectionsList.add((Section) afterNext);
+					afterNext = this.route.remove(0);
+				}
+				this.route.add(0,afterNext);
+				sectionsList.forEach(section ->{
+					try {
+						section.enter(this);
+						section.setInUse(true);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				});
+				//((Section) nextElem).enter(this);
+				calculNextPos(nextElem);
+				//((Section) nextElem).setInUse(true);
 			}
 			//if it arrives at the destination, it will stop
 			if (this.pos.getPos() == this.destination)

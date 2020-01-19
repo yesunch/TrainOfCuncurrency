@@ -28,12 +28,17 @@ public class Section extends Element {
 	}
 
 	public synchronized void setInUse(boolean inUse){
+
+		this.inUse = inUse;
 		if(!checkSectionFull())
 			this.notifyAll();
 
-		this.inUse = inUse;
 	}
 	private boolean checkSectionFull(){
 		return this.inUse;
+	}
+
+	public Section addSection(Section section) {
+		return new Section(this.toString()+" and section "+section.toString());
 	}
 }
