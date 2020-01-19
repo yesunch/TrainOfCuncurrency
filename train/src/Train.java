@@ -92,8 +92,10 @@ public class Train implements Runnable{
 			if (oldPos.getPos() instanceof Station)
 				((Station) oldPos.getPos()).outTrain(this);
 			//if it's leaving from a section, make this section available to others
-			if (oldPos.getPos() instanceof Section)
+			if (oldPos.getPos() instanceof Section){
 				((Section)oldPos.getPos()).setInUse(false);
+				LOGGER.info(this.toString() + " has gone out of the section " + oldPos.getPos().toString());
+			}
 
 			Element nextElem =this.route.remove(0);
 			calculNextPos(nextElem);

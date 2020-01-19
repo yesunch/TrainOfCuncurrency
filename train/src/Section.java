@@ -19,7 +19,7 @@ public class Section extends Element {
 
 
 	public synchronized void enter(Train train) throws InterruptedException {
-		while (this.inUse){
+		while (this.checkSectionFull()){
 			LOGGER.info(train.toString()+" is waiting to use section "+this.toString());
 			wait();
 		}
@@ -28,6 +28,12 @@ public class Section extends Element {
 	}
 
 	public synchronized void setInUse(boolean inUse){
+		if(!checkSectionFull())
+			this.notifyAll();
+
 		this.inUse = inUse;
+	}
+	private boolean checkSectionFull(){
+		return this.inUse;
 	}
 }
