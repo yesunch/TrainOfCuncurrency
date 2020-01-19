@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  */
 public class Section extends Element {
 
-	private boolean inUse;
+	private boolean inUse = false;
 	private final static Logger LOGGER = Logger.getLogger(Section.class.getName());
 
 	public Section(String name) {
