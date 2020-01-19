@@ -75,7 +75,7 @@ public class Train implements Runnable{
 	 */
 	public void getRoute() {
 		List<Element> routeCalculated = this.r.calculateRoute(this.originalStation, this.destination);
-		this.route = routeCalculated.subList(1,route.size());
+		this.route = routeCalculated.subList(1,routeCalculated.size());
 
 	}
 

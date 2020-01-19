@@ -1,3 +1,5 @@
+import javafx.geometry.Pos;
+
 /**
  * Représentation de la position d'un train dans le circuit. Une position
  * est caractérisée par deux valeurs :
@@ -19,7 +21,7 @@
  */
 public class Position implements Cloneable {
 	private final Direction direction;
-	private final Element pos;
+	private  Element pos;
 
 	public Position(Element elt, Direction d) {
 		if (elt == null || d == null)
@@ -37,6 +39,17 @@ public class Position implements Cloneable {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public Position( Position oldPos) {
+		if (oldPos == null)
+			throw new NullPointerException();
+		this.direction = oldPos.direction;
+		if (oldPos.getPos() instanceof Section)
+			this.pos = new Section(oldPos.getPos().toString());
+		if (oldPos.getPos() instanceof Station )
+			this.pos = new Station(oldPos.getPos().toString(),((Station)oldPos.getPos()).getSize());
+
 	}
 
 	public Element getPos() {

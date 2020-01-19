@@ -41,4 +41,8 @@ public class Station extends Element {
 				this.toString()+", now this station has "+this.nbTrains+" trains");
 		this.notifyAll();
 	}
+
+	public int getSize() {
+		return size;
+	}
 }
