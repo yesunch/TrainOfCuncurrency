@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Représentation d'un circuit constitué d'éléments de voie ferrée : gare ou
@@ -40,13 +41,14 @@ public class Railway {
 		return result.toString();
 	}
 
+
 	/**
 	 * Calculates the route in a linear railway. Route will include depart and destinations elements
 	 * @param originalStation
 	 * @param destination
 	 * @return
 	 */
-	public  synchronized List<Element> calculateRoute(Station originalStation, Station destination){
+	public synchronized List<Element> calculateRoute(Station originalStation, Station destination){
 		List<Element> elementsList = new ArrayList<>(Arrays.asList(this.elements));
 		List<Element> finalRoute = new ArrayList<>();
 		for(int i = elementsList.indexOf(originalStation); i<= elementsList.indexOf(destination); i++)
@@ -54,6 +56,26 @@ public class Railway {
 		for(int i = elementsList.indexOf(originalStation); i>= elementsList.indexOf(destination); i--)
 			finalRoute.add(elementsList.get(i));
 		return finalRoute;
+	}
+
+	public synchronized boolean canEnterSection(Station currentStation, Train train){
+		// 2. Where he wnt to go?
+		Station nextStation = currentStation;
+		for (Element elem : train.getRoute()) {
+			if (elem instanceof Station) {
+				nextStation = (Station) elem;
+				break;
+			}
+		}
+		// 3. get sections between two stations
+		List<Section> sectionsList = this.calculateRoute(currentStation, nextStation).stream().filter(elem -> elem instanceof Section).map(section -> (Section)section).collect(Collectors.toList());
+		int lr = (int) sectionsList.stream().filter(section -> section.checkSectionFull() && section.getUsingTrainDirection().equals(Direction.LR)).count();
+		int rl = (int) sectionsList.stream().filter(section -> section.checkSectionFull() && section.getUsingTrainDirection().equals(Direction.RL)).count();
+
+		if (train.getPos().getDirection() == Direction.LR)
+			lr++;
+		else rl++;
+		return  lr*rl == 0;
 	}
 
 }

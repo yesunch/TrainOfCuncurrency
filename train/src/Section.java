@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 public class Section extends Element {
 
 	private boolean inUse = false;
+	private Direction usingTrainDirection;
+
 	private final static Logger LOGGER = Logger.getLogger(Section.class.getName());
 
 	public Section(String name) {
@@ -19,26 +21,30 @@ public class Section extends Element {
 
 
 	public synchronized void enter(Train train) throws InterruptedException {
-		while (this.checkSectionFull()){
+		while (this.checkSectionFull() ){
 			LOGGER.info(train.toString()+" is waiting to use section "+this.toString());
 			wait();
 		}
-		LOGGER.info(train.toString()+" has entered "+this.toString());
+		this.usingTrainDirection = train.getPos().getDirection();
 		this.inUse = true;
+		LOGGER.info(train.toString()+" has entered "+this.toString());
 	}
 
-	public synchronized void setInUse(boolean inUse){
-
+	public synchronized void leaveAndEnterElem(Boolean inUse, Train train){
 		this.inUse = inUse;
-		if(!checkSectionFull())
+		if(!checkSectionFull()) {
+			LOGGER.info(train.toString() + " has gone out of the section " + this.toString());
 			this.notifyAll();
+		}
+
 
 	}
-	private boolean checkSectionFull(){
+
+	public boolean checkSectionFull(){
 		return this.inUse;
 	}
 
-	public Section addSection(Section section) {
-		return new Section(this.toString()+" and section "+section.toString());
+	public Direction getUsingTrainDirection() {
+		return usingTrainDirection;
 	}
 }

@@ -12,6 +12,7 @@
  * @author Philippe Tanguy <philippe.tanguy@imt-atlantique.fr>
  */
 public abstract class Element {
+
 	private final String name;
 	protected Railway railway;
 
