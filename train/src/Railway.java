@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Représentation d'un circuit constitué d'éléments de voie ferrée : gare ou
@@ -12,6 +14,7 @@ import java.util.List;
 public class Railway {
 
 	private final Element[] elements;
+	private final static Logger LOGGER = Logger.getLogger(Train.class.getName());
 
 	public Railway(Element[] elements) {
 		if(elements == null)
@@ -55,5 +58,42 @@ public class Railway {
 			finalRoute.add(elementsList.get(i));
 		return finalRoute;
 	}
+
+	public synchronized void canEnterSection(Station currentStation, Train train) throws InterruptedException {
+		// 2. Where he wnt to go?
+		Station nextStation = currentStation;
+		Section nextSection = (Section) train.getRoute().get(0);
+		for (Element elem : train.getRoute()) {
+			if (elem instanceof Station) {
+				nextStation = (Station) elem;
+				break;
+			}
+		}
+		// 3. get sections between two stations
+		List<Section> sectionsList = this.calculateRoute(currentStation, nextStation).stream().filter(elem -> elem instanceof Section).map(section -> (Section)section).collect(Collectors.toList());
+		int lr = (int) sectionsList.stream().filter(section -> section.checkSectionFull() && section.getUsingTrainDirection().equals(Direction.LR)).count();
+		int rl = (int) sectionsList.stream().filter(section -> section.checkSectionFull() && section.getUsingTrainDirection().equals(Direction.RL)).count();
+
+		if (train.getPos().getDirection() == Direction.LR)
+			lr++;
+		else rl++;
+		while (lr*rl != 0) {
+			LOGGER.info("for "+train.toString()+"lr is "+lr+", rl is "+rl+", it's waiting");
+			this.wait();
+		}
+		if (train.getPos().getDirection() == Direction.LR)
+			lr--;
+		else rl--;
+
+		LOGGER.info("for "+train.toString()+"lr is "+lr+", rl is "+rl);
+		//LOGGER.info(train.toString()+" is waiting to leave station "+currentStation.toString());
+		currentStation.outTrain(train);
+		nextSection.enter(train);
+		train.getRoute().remove(0);
+		nextSection.setInUse(false);
+
+
+	}
+
 
 }

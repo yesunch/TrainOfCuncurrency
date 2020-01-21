@@ -1,5 +1,3 @@
-import javafx.geometry.Pos;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -75,10 +73,18 @@ public class Train implements Runnable{
 	/**
 	 * Requires a route from original station to its destination using Railway
 	 */
-	public void getRoute() {
+	public void requestRoute() {
 		List<Element> routeCalculated = this.r.calculateRoute(this.originalStation, this.destination);
 		this.route = routeCalculated.subList(1,routeCalculated.size());
 
+	}
+
+	public List<Element> getRoute() {
+		return route;
+	}
+
+	public Position getPos() {
+		return pos;
 	}
 
 	/**
@@ -91,7 +97,7 @@ public class Train implements Runnable{
 
 			//if it's leaving from a station, call the outTrain method of this station
 			if (oldPos.getPos() instanceof Station)
-				((Station) oldPos.getPos()).outTrain(this);
+				this.r.canEnterSection((Station) this.pos.getPos(), this);
 			//if it's leaving from a section, make this section available to others
 			if (oldPos.getPos() instanceof Section){
 				((Section)oldPos.getPos()).setInUse(false);
@@ -99,39 +105,51 @@ public class Train implements Runnable{
 			}
 
 			Element nextElem =this.route.remove(0);
-			calculNextPos(nextElem);
-			LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + this.pos.getPos());
+			//calculNextPos(nextElem);
+			LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + nextElem.toString());
 
 			//if its nextElem is a station, try to enter it
-			if (nextElem instanceof Station)
+			if (nextElem instanceof Station) {
 				((Station) nextElem).enterTrain(this);
-
-
+				calculNextPos(nextElem);
+			}
 
 			//if its nextElem is a section, try to enter it and make it not available to others
 			if (nextElem instanceof Section) {
-				Element afterNext = this.route.remove(0);
-				List<Section> sectionsList = new ArrayList<>();
-				if (!(afterNext instanceof Section)) //station
-					this.route.add(0,afterNext);
-				while (afterNext instanceof Section) {
-					nextElem = ((Section) nextElem).addSection((Section)afterNext);
-					sectionsList.add((Section) afterNext);
-					afterNext = this.route.remove(0);
-				}
-				this.route.add(0,afterNext);
-				sectionsList.forEach(section ->{
-					try {
-						section.enter(this);
-						section.setInUse(true);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				});
-				//((Section) nextElem).enter(this);
+				((Section) nextElem).enter(this);
 				calculNextPos(nextElem);
-				//((Section) nextElem).setInUse(true);
 			}
+
+//			//if its nextElem is a station, try to enter it
+//			if (nextElem instanceof Station)
+//				((Station) nextElem).enterTrain(this);
+//
+//
+//
+//			//if its nextElem is a section, try to enter it and make it not available to others
+//			if (nextElem instanceof Section) {
+//				Element afterNext = this.route.remove(0);
+//				List<Section> sectionsList = new ArrayList<>();
+//				if (!(afterNext instanceof Section)) //station
+//					this.route.add(0,afterNext);
+//				while (afterNext instanceof Section) {
+//					nextElem = ((Section) nextElem).addSection((Section)afterNext);
+//					sectionsList.add((Section) afterNext);
+//					afterNext = this.route.remove(0);
+//				}
+//				this.route.add(0,afterNext);
+//				sectionsList.forEach(section ->{
+//					try {
+//						section.enter(this);
+//						section.setInUse(true);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				});
+//				//((Section) nextElem).enter(this);
+//				calculNextPos(nextElem);
+				//((Section) nextElem).setInUse(true);
+//			}
 			//if it arrives at the destination, it will stop
 			if (this.pos.getPos() == this.destination)
 				this.stop();
@@ -155,7 +173,7 @@ public class Train implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			this.getRoute();
+			this.requestRoute();
 			LOGGER.info(this.toString() + " has route " + this.route);
 			this.depart();
 			while (this.pos.getPos() != this.destination) {
