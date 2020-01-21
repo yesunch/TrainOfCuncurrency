@@ -26,13 +26,13 @@ public class Main {
 		try {
 			Train t1 = new Train("1", A, B, r);
 			Train t2 = new Train("2", B, A, r);
-//			Train t3 = new Train("3", A, C, r);
+			Train t3 = new Train("3", A, C, r);
 //			System.out.println(t1);
 //			System.out.println(t2);
 //			System.out.println(t3);
 			new Thread(t1).start();
 			new Thread(t2).start();
-//			new Thread(t3).start();
+			new Thread(t3).start();
 		} catch (BadPositionForTrainException e) {
 			System.out.println("Le train " + e.getMessage());
 		} catch (InterruptedException e) {

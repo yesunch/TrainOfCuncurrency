@@ -13,19 +13,20 @@ import java.util.stream.Collectors;
  */
 public class Railway {
 
-	private final Element[] elements;
+	//private final Element[] elements;
+	private List<Element> elements;
 	private final static Logger LOGGER = Logger.getLogger(Train.class.getName());
 
 	public Railway(Element[] elements) {
 		if(elements == null)
 			throw new NullPointerException();
 		
-		this.elements = elements;
+		this.elements = new ArrayList<>(Arrays.asList(elements));
 		for (Element e : elements)
 			e.setRailway(this);
 	}
 
-	public Element[] getElements() {
+	public List<Element> getElements() {
 		return elements;
 	}
 
@@ -50,16 +51,33 @@ public class Railway {
 	 * @return
 	 */
 	public  synchronized List<Element> calculateRoute(Station originalStation, Station destination){
-		List<Element> elementsList = new ArrayList<>(Arrays.asList(this.elements));
+		//List<Element> elementsList = new ArrayList<>(Arrays.asList(this.elements));
 		List<Element> finalRoute = new ArrayList<>();
-		for(int i = elementsList.indexOf(originalStation); i<= elementsList.indexOf(destination); i++)
-			finalRoute.add(elementsList.get(i));
-		for(int i = elementsList.indexOf(originalStation); i>= elementsList.indexOf(destination); i--)
-			finalRoute.add(elementsList.get(i));
+		for(int i = this.elements.indexOf(originalStation); i<= this.elements.indexOf(destination); i++)
+			finalRoute.add(this.elements.get(i));
+		for(int i = this.elements.indexOf(originalStation); i>= this.elements.indexOf(destination); i--)
+			finalRoute.add(this.elements.get(i));
 		return finalRoute;
 	}
 
-	public synchronized void canEnterSection(Station currentStation, Train train) throws InterruptedException {
+	/**
+	 * Check whether a train can leave the current Station and enter the next Section.
+	 *
+	 * If the train can leave the current station, it will enter all of the sections connected with each other until
+	 * the next station (won't enter this station). All of the sections entered will be removed from the route of the train.
+	 * And return the next station.
+	 *
+	 * Cause all of the train who enter in this method and is permitted to enter the sections would keep running until leave all of
+	 * the sections and reach the next station without being interrupted (because of the synchronized keyword), the result of rl*lr would always
+	 * be 0 for the trains who enter in this method.
+	 *
+	 * @param currentStation
+	 * @param train
+	 * @return	nextStation If the train has entered and left all of the sections between two stations
+	 * 			currStation If the train can't leave the currentStation which would not happen if the train can enter this method
+	 * @throws InterruptedException
+	 */
+	public synchronized Element tryEnterSections(Station currentStation, Train train) throws InterruptedException {
 		// 2. Where he wnt to go?
 		Station nextStation = currentStation;
 		Section nextSection = (Section) train.getRoute().get(0);
@@ -79,19 +97,20 @@ public class Railway {
 		else rl++;
 		while (lr*rl != 0) {
 			LOGGER.info("for "+train.toString()+"lr is "+lr+", rl is "+rl+", it's waiting");
-			this.wait();
+			return currentStation;
 		}
 		if (train.getPos().getDirection() == Direction.LR)
 			lr--;
 		else rl--;
 
 		LOGGER.info("for "+train.toString()+"lr is "+lr+", rl is "+rl);
-		//LOGGER.info(train.toString()+" is waiting to leave station "+currentStation.toString());
 		currentStation.outTrain(train);
-		nextSection.enter(train);
-		train.getRoute().remove(0);
-		nextSection.setInUse(false);
-
+		for (Section s : sectionsList) {
+			s.enter(train);
+			train.getRoute().remove(0);
+			s.setInUse(false);
+		}
+		return nextStation;
 
 	}
 

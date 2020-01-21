@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -95,22 +94,29 @@ public class Train implements Runnable {
 	public void gotoNextStation() throws InterruptedException {
 		if (this.pos.getPos() != this.destination) {
 			Position oldPos = this.pos;
-
+			Element nextElem = this.pos.getPos();
 			//if it's leaving from a station, call the outTrain method of this station
-			if (oldPos.getPos() instanceof Station)
-				this.r.canEnterSection((Station) this.pos.getPos(), this);
+			if (oldPos.getPos() instanceof Station) {
+				nextElem = this.r.tryEnterSections((Station) this.pos.getPos(), this);
+				//If it can't leave the current station, which means that if it leaves, lr*rl!=0
+				if (nextElem == this.pos.getPos()) {
+					LOGGER.info(this.toString() + " can't leave station" + this.pos.getPos() + " cause it can't enter to the next section");
+					return;
+				}
+			}
 			//if it's leaving from a section, make this section available to others
-			if (oldPos.getPos() instanceof Section){
-				((Section)oldPos.getPos()).setInUse(false);
+			if (oldPos.getPos() instanceof Section) {
+				((Section) oldPos.getPos()).setInUse(false);
 				LOGGER.info(this.toString() + " has gone out of the section " + oldPos.getPos().toString());
 			}
-
-			Element nextElem =this.route.remove(0);
+			//= this.pos.getPos();
+			if (this.route.size() > 0)
+				nextElem = this.route.remove(0);
 			//calculNextPos(nextElem);
-			LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + nextElem.toString());
+			//LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + nextElem.toString());
 
 			//if its nextElem is a station, try to enter it
-			if (nextElem instanceof Station) {
+			if (nextElem instanceof Station ) {
 				((Station) nextElem).enterTrain(this);
 				calculNextPos(nextElem);
 			}
@@ -121,41 +127,12 @@ public class Train implements Runnable {
 				calculNextPos(nextElem);
 			}
 
-//			//if its nextElem is a station, try to enter it
-//			if (nextElem instanceof Station)
-//				((Station) nextElem).enterTrain(this);
-//
-//
-//
-//			//if its nextElem is a section, try to enter it and make it not available to others
-//			if (nextElem instanceof Section) {
-//				Element afterNext = this.route.remove(0);
-//				List<Section> sectionsList = new ArrayList<>();
-//				if (!(afterNext instanceof Section)) //station
-//					this.route.add(0,afterNext);
-//				while (afterNext instanceof Section) {
-//					nextElem = ((Section) nextElem).addSection((Section)afterNext);
-//					sectionsList.add((Section) afterNext);
-//					afterNext = this.route.remove(0);
-//				}
-//				this.route.add(0,afterNext);
-//				sectionsList.forEach(section ->{
-//					try {
-//						section.enter(this);
-//						section.setInUse(true);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//				});
-//				//((Section) nextElem).enter(this);
-//				calculNextPos(nextElem);
-			//((Section) nextElem).setInUse(true);
-//			}
 			//if it arrives at the destination, it will stop
 			if (this.pos.getPos() == this.destination)
 				this.stop();
 		}
 	}
+
 
 	/**
 	 * Method used to update the current position of train using the next Element.
