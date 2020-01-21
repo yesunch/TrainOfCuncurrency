@@ -5,21 +5,22 @@ import java.util.logging.Logger;
 /**
  * Représentation d'un train. Un train est caractérisé par deux valeurs :
  * <ol>
- *   <li>
- *     Son nom pour l'affichage.
- *   </li>
- *   <li>
- *     La position qu'il occupe dans le circuit (un élément avec une direction) : classe {@link Position}.
- *   </li>
+ * <li>
+ * Son nom pour l'affichage.
+ * </li>
+ * <li>
+ * La position qu'il occupe dans le circuit (un élément avec une direction) : classe {@link Position}.
+ * </li>
  * </ol>
- * 
+ *
  * @author Fabien Dagnat <fabien.dagnat@imt-atlantique.fr>
  * @author Mayte segarra <mt.segarra@imt-atlantique.fr>
  * Test if the first element of a train is a station
  * @author Philippe Tanguy <philippe.tanguy@imt-atlantique.fr>
  * @version 0.3
  */
-public class Train implements Runnable{
+
+public class Train implements Runnable {
 	private final String name;
 	private Position pos;
 
@@ -34,12 +35,12 @@ public class Train implements Runnable{
 		this.route = route;
 	}
 
-	public Train(String name,  Station originalStation, Station destination, Railway r) throws BadPositionForTrainException, InterruptedException {
-		if (name == null )
+	public Train(String name, Station originalStation, Station destination, Railway r) throws BadPositionForTrainException, InterruptedException {
+		if (name == null)
 			throw new NullPointerException();
 
 		this.name = name;
-		this.pos = new Position(originalStation, destination.getId()>originalStation.getId()?Direction.LR:Direction.RL);
+		this.pos = new Position(originalStation, destination.getId() > originalStation.getId() ? Direction.LR : Direction.RL);
 		if (this.pos.getPos() instanceof Station)
 			((Station) this.pos.getPos()).enterTrain(this);
 		this.originalStation = originalStation;
@@ -60,14 +61,14 @@ public class Train implements Runnable{
 	 * Prints a statement that the train starts to move from original station to the destination
 	 */
 	public void depart() {
-		LOGGER.info(this.toString()+" has departed from "+this.originalStation.toString()+" with destination of "+this.destination);
+		LOGGER.info(this.toString() + " has departed from " + this.originalStation.toString() + " with destination of " + this.destination);
 	}
 
 	/**
 	 * Prints a statement that The train stops at current position.
 	 */
 	public void stop() {
-		LOGGER.info(this.toString()+" has stopped at " + this.pos.getPos());
+		LOGGER.info(this.toString() + " has stopped at " + this.pos.getPos());
 	}
 
 	/**
@@ -75,7 +76,7 @@ public class Train implements Runnable{
 	 */
 	public void requestRoute() {
 		List<Element> routeCalculated = this.r.calculateRoute(this.originalStation, this.destination);
-		this.route = routeCalculated.subList(1,routeCalculated.size());
+		this.route = routeCalculated.subList(1, routeCalculated.size());
 
 	}
 
@@ -148,7 +149,7 @@ public class Train implements Runnable{
 //				});
 //				//((Section) nextElem).enter(this);
 //				calculNextPos(nextElem);
-				//((Section) nextElem).setInUse(true);
+			//((Section) nextElem).setInUse(true);
 //			}
 			//if it arrives at the destination, it will stop
 			if (this.pos.getPos() == this.destination)
@@ -159,6 +160,7 @@ public class Train implements Runnable{
 	/**
 	 * Method used to update the current position of train using the next Element.
 	 * If the id of nextElem is greater than the current position id,
+	 *
 	 * @param nextElem
 	 */
 	private void calculNextPos(Element nextElem) {
@@ -168,8 +170,9 @@ public class Train implements Runnable{
 			direction = Direction.LR;
 		else
 			direction = Direction.RL;
-		this.pos = new Position(nextElem,direction);
+		this.pos = new Position(nextElem, direction);
 	}
+
 	@Override
 	public void run() {
 		while (true) {
@@ -185,7 +188,7 @@ public class Train implements Runnable{
 
 			}
 			//the train has arrived its destination, now it turns around and continue running
-			LOGGER.info(this.toString()+" has turned around");
+			LOGGER.info(this.toString() + " has turned around");
 			Station temp = this.originalStation;
 			this.originalStation = this.destination;
 			this.destination = temp;
