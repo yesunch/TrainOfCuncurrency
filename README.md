@@ -10,25 +10,6 @@ We have chosen **IntelliJ IDEA** as the IDE, and **Git** with **Github** as our 
 ## Our solution
 ### For one train
 
-A train will keep running like the flow chart below in a while(true) recursive block.
-
-```flow
-st=>start: the train starts to run
-op1=>operation: requestRoute()
-op2=>operation: depart()
-cond=>condition: this.pos == this.destination?
-op3=>operation: switch destination and original station
-op4=>operation: gotoNextStation()
-op5=>operation: update this.pos
-e=>end: end
-
-st->op1->op2->cond
-cond(yes)->op3->e
-cond(no)->op4->op5->cond
-```
-
-
-
 To simulate the behavior of a train, the runnable class *Train* has two attributes *originalStation* and *destination* which are instances of *Station*. And once the Train starts to run, it requires Railway to calculate the route from its *originalStation*  to its *destination*. This route is returned as a list of *Element*. Then, for each element *elem* of the list, it tries to go to *elem* in its method *gotoNextStation()* until it reaches its destination. 
 
 In the method *gotoNextStation*, we used two variables *oldPos* and *nextElem* to indecate the current position of train and the next *Element* it's trying to enter. The train will firstly check if it's in a station or a section and call the appropriate leaving function. Secondly, it polls the first element out of the route list as the *nextElem*, calls the appropriate enter function, and finally update its current position. Finally, it will check whether the latest current position is exactly its destination, if it's the case, it will stop.
@@ -95,7 +76,14 @@ Currently we are only capable of creating the linear network and calculate the r
 ### Low concurrency performance
 Since the method *tryEnterSection()* of Railway is synchronized, and each train which needs to leave a station will try to call this method, only one train can verify whether it can leave a station or not at one time.
 
+## To compile and execute the project
 
+Clone the project: `git clone git@github.com:yesunch/TrainOfCuncurrency.git`
 
+Enter the source directory: `cd TrainOfCuncurrency/train/src`
+
+Compile the project: `javac -d ../bin Main.java`
+
+Execute: `java -cp ../bin Main`
 
 ### End
