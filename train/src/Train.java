@@ -109,11 +109,8 @@ public class Train implements Runnable {
 				((Section) oldPos.getPos()).setInUse(false);
 				LOGGER.info(this.toString() + " has gone out of the section " + oldPos.getPos().toString());
 			}
-			//= this.pos.getPos();
 			if (this.route.size() > 0)
 				nextElem = this.route.remove(0);
-			//calculNextPos(nextElem);
-			//LOGGER.info(this.toString()+" is moving from " + oldPos.getPos() +" "+ this.pos.getDirection() + " to " + nextElem.toString());
 
 			//if its nextElem is a station, try to enter it
 			if (nextElem instanceof Station ) {
